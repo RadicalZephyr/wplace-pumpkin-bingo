@@ -5,9 +5,9 @@ interface Props {
   claimed: Set<number>;
   onToggle: (n: number, v: boolean) => void;
   large: boolean;
-  getUrl: (n: number) => string;
-  onAssign: (n: number, url: string) => void;
-  onClearLink: (n: number) => void;
+  // getUrl: (n: number) => string;
+  // onAssign: (n: number, url: string) => void;
+  // onClearLink: (n: number) => void;
 }
 
 export default function PumpkinGrid({
@@ -15,9 +15,9 @@ export default function PumpkinGrid({
   claimed,
   onToggle,
   large,
-  getUrl,
-  onAssign,
-  onClearLink,
+  // getUrl,
+  // onAssign,
+  // onClearLink,
 }: Props) {
   return (
     <div
@@ -31,10 +31,10 @@ export default function PumpkinGrid({
           n={n}
           checked={claimed.has(n)}
           onChange={(v) => onToggle(n, v)}
-          showLinks={large}
-          url={getUrl(n)}
-          onAssign={onAssign}
-          onClearLink={onClearLink}
+          // showLinks={large}
+          // url={getUrl(n)}
+          // onAssign={onAssign}
+          // onClearLink={onClearLink}
         />
       ))}
     </div>

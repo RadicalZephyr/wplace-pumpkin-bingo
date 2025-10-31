@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   exportAll,
   importAll,
-  isLikelyUrl,
+  // isLikelyUrl,
   loadAutoClearLinks,
   loadClaimed,
   loadFilter,
@@ -67,34 +67,34 @@ export default function App() {
     });
   }, []);
 
-  const nextUnclaimed = useMemo(() => {
-    for (let i = 1; i <= 100; i++) if (!claimed.has(i)) return i;
-    return null;
-  }, [claimed]);
+  // const nextUnclaimed = useMemo(() => {
+  //   for (let i = 1; i <= 100; i++) if (!claimed.has(i)) return i;
+  //   return null;
+  // }, [claimed]);
 
-  const handleOpenNext = () => {
-    if (!nextUnclaimed) return;
-    const url =
-      mapLinks[nextUnclaimed] ||
-      (mapTemplate.includes("{num}")
-        ? mapTemplate.replace("{num}", String(nextUnclaimed))
-        : mapTemplate);
-    window.open(url, "_blank", "noopener");
-  };
+  // const handleOpenNext = () => {
+  //   if (!nextUnclaimed) return;
+  //   const url =
+  //     mapLinks[nextUnclaimed] ||
+  //     (mapTemplate.includes("{num}")
+  //       ? mapTemplate.replace("{num}", String(nextUnclaimed))
+  //       : mapTemplate);
+  //   window.open(url, "_blank", "noopener");
+  // };
 
-  const handleAssign = (n: number, url: string) => {
-    if (!isLikelyUrl(url)) return toast("Enter a valid URL");
-    const next = { ...mapLinks, [n]: url };
-    setMapLinks(next);
-    saveLinks(next);
-    toast(`Link set for #${n}`);
-  };
-  const handleClearLink = (n: number) => {
-    const { [n]: _, ...rest } = mapLinks;
-    setMapLinks(rest);
-    saveLinks(rest);
-    toast(`Link cleared for #${n}`);
-  };
+  // const handleAssign = (n: number, url: string) => {
+  //   if (!isLikelyUrl(url)) return toast("Enter a valid URL");
+  //   const next = { ...mapLinks, [n]: url };
+  //   setMapLinks(next);
+  //   saveLinks(next);
+  //   toast(`Link set for #${n}`);
+  // };
+  // const handleClearLink = (n: number) => {
+  //   const { [n]: _, ...rest } = mapLinks;
+  //   setMapLinks(rest);
+  //   saveLinks(rest);
+  //   toast(`Link cleared for #${n}`);
+  // };
 
   const handleExport = async () => {
     const payload = exportAll({
@@ -139,11 +139,11 @@ export default function App() {
     setClaimed(empty);
     saveClaimed(empty);
   };
-  const handleClearAllLinks = () => {
-    if (!confirm("Clear all stored links?")) return;
-    setMapLinks({});
-    saveLinks({});
-  };
+  // const handleClearAllLinks = () => {
+  //   if (!confirm("Clear all stored links?")) return;
+  //   setMapLinks({});
+  //   saveLinks({});
+  // };
 
   const visibleNumbers = useMemo(() => {
     const arr: number[] = [];
@@ -153,12 +153,12 @@ export default function App() {
     return arr;
   }, [claimed, filterOnlyUnclaimed]);
 
-  const getUrl = (n: number) => {
-    if (mapLinks[n]) return mapLinks[n];
-    return mapTemplate.includes("{num}")
-      ? mapTemplate.replace("{num}", String(n))
-      : mapTemplate;
-  };
+  // const getUrl = (n: number) => {
+  //   if (mapLinks[n]) return mapLinks[n];
+  //   return mapTemplate.includes("{num}")
+  //     ? mapTemplate.replace("{num}", String(n))
+  //     : mapTemplate;
+  // };
 
   return (
     <div className="page">
@@ -215,9 +215,9 @@ export default function App() {
         claimed={claimed}
         onToggle={toggleClaim}
         large={large}
-        getUrl={getUrl}
-        onAssign={handleAssign}
-        onClearLink={handleClearLink}
+        // getUrl={getUrl}
+        // onAssign={handleAssign}
+        // onClearLink={handleClearLink}
       />
     </div>
   );
