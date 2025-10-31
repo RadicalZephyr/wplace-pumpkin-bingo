@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   exportAll,
   importAll,
@@ -17,6 +17,7 @@ import {
 import type { LinksMap } from "./types";
 import { useCountdownToTopOfHour, useMedia } from "./hooks";
 import PumpkinGrid from "./components/PumpkinGrid.tsx";
+import PumpkinWave from "./components/PumpkinWave.tsx";
 
 function downloadJson(filename: string, payload: string) {
   const blob = new Blob([payload], { type: "application/json" });
@@ -46,6 +47,17 @@ export default function App() {
   const large = useMedia("(min-width: 1024px)"); // >=1024px => 10x10; otherwise rows of 5 & no link/edit
   const { mmss, atTop } = useCountdownToTopOfHour();
   const claimedCount = claimed.size;
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebratedAll, setCelebratedAll] = useState(false);
+
+  useEffect(() => {
+    if (claimedCount === 100 && !showCelebration && !celebratedAll) {
+      setShowCelebration(true);
+      setCelebratedAll(true);
+    } else if (claimedCount < 100 && celebratedAll && !showCelebration) {
+      setCelebratedAll(false);
+    }
+  }, [claimedCount, celebratedAll, showCelebration]);
 
   // handle top-of-hour auto action (links only, never unclaim pumpkins)
   const [processed, setProcessed] = useState(false);
@@ -242,6 +254,11 @@ export default function App() {
           <i className="fa-brands fa-github"></i> Github
         </a>
       </footer>
+
+      <PumpkinWave
+        active={showCelebration}
+        onComplete={() => setShowCelebration(false)}
+      />
     </div>
   );
 }
