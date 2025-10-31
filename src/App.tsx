@@ -453,7 +453,7 @@ export default function App() {
                 title="Set a wave end timer"
                 ref={alarmButtonRef}
               >
-                <i className="fa-solid fa-alarm-clock" aria-hidden="true"></i>
+                <i className="fa-regular fa-bell"></i>
                 <span className="sr-only">Configure wave end timer</span>
               </button>
               {alarm.active && (
