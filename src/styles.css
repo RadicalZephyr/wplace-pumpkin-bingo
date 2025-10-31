@@ -229,3 +229,80 @@ header h1 {
     grid-template-columns: 1fr auto auto auto;
   }
 }
+
+.pumpkin-wave-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 1.1s ease;
+}
+
+.pumpkin-wave-overlay.phase-blackout {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.pumpkin-wave-overlay.phase-message {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+.pumpkin-wave-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.pumpkin-wave-pumpkin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 18px rgba(255, 130, 0, 0.45));
+  opacity: 0;
+}
+
+.pumpkin-wave-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90vw;
+  max-width: 1200px;
+  transform: translate(-50%, -50%) scale(0.05);
+  opacity: 0;
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.8s ease-out;
+  filter: drop-shadow(0 0 36px rgba(255, 140, 30, 0.65));
+}
+
+.pumpkin-wave-center.reveal {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.pumpkin-wave-center.fade-out {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.05);
+  transition-duration: 0.8s;
+}
+
+.pumpkin-wave-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  color: #ff7a18;
+  font-family: "Creepster", "Nosifer", "Cinzel Decorative", "Copperplate", cursive;
+  font-size: clamp(2.5rem, 8vw, 6rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0;
+  text-shadow: 0 0 30px rgba(255, 120, 20, 0.75), 0 0 60px rgba(255, 90, 0, 0.6);
+  transition: opacity 1.4s ease-out, transform 1.4s ease-out;
+  pointer-events: none;
+}
+
+.pumpkin-wave-message.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
