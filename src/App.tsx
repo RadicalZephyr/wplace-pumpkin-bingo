@@ -163,8 +163,8 @@ export default function App() {
       <header>
         <h1>🎃 Pumpkin Tracker</h1>
         <p className="sub">
-          You can claim each number once total. Pumpkins move hourly; links
-          change, claims don’t.
+          You can claim each number once total. Pumpkins move every hour, on the
+          hour.
         </p>
       </header>
 
