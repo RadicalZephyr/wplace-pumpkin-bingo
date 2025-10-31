@@ -18,9 +18,6 @@ import type { LinksMap } from "./types";
 import { useCountdownToTopOfHour, useMedia } from "./hooks";
 import PumpkinGrid from "./components/PumpkinGrid.tsx";
 
-const CLAIMED_LINK =
-  "https://backend.wplace.live/event/hallowen/pumpkins/claimed";
-
 function downloadJson(filename: string, payload: string) {
   const blob = new Blob([payload], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -32,6 +29,9 @@ function downloadJson(filename: string, payload: string) {
 }
 
 export default function App() {
+  const CLAIMED_LINK =
+    "https://backend.wplace.live/event/hallowen/pumpkins/claimed";
+
   // persistent state
   const [claimed, setClaimed] = useState<Set<number>>(() => loadClaimed());
   const [mapTemplate, setMapTemplate] = useState<string>(() => loadTemplate());
@@ -169,9 +169,11 @@ export default function App() {
           You can claim each number once. Pumpkins move every hour, on the hour.
         </p>
         <p>
-          Copy the contents of <a href="{{ CLAIMED_LINK }}"></a> into the
-          "Import" dialog to fill out the grid with everything you've already
-          claimed!
+          Copy your{" "}
+          <a target="_blank" href={CLAIMED_LINK}>
+            current list of claimed pumpkins ↗🔗
+          </a>{" "}
+          directly into the "Import" dialog to start filling out your grid!
         </p>
       </header>
 
