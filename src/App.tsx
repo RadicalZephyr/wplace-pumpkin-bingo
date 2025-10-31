@@ -106,12 +106,13 @@ export default function App() {
 
   useEffect(() => {
     return () => {
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-        audioContextRef.current
-          .close()
-          .catch(() => {
-            /* ignore */
-          });
+      if (
+        audioContextRef.current &&
+        audioContextRef.current.state !== "closed"
+      ) {
+        audioContextRef.current.close().catch(() => {
+          /* ignore */
+        });
       }
     };
   }, []);
@@ -166,7 +167,8 @@ export default function App() {
     for (let i = 0; i < frameCount; i++) {
       const t = i / sampleRate;
       const envelope = Math.min(1, t * 3) * Math.exp(-2.2 * t);
-      const wobble = Math.sin(2 * Math.PI * 7 * t) + Math.sin(2 * Math.PI * 11 * t);
+      const wobble =
+        Math.sin(2 * Math.PI * 7 * t) + Math.sin(2 * Math.PI * 11 * t);
       const shriek = Math.sin(
         2 * Math.PI * (220 + 40 * Math.sin(2 * Math.PI * 4 * t)) * t,
       );
@@ -174,7 +176,8 @@ export default function App() {
         Math.sin(2 * Math.PI * 620 * ((t * 4) % 0.25)) *
         (Math.floor((t * 8) % 2) === 0 ? 0.6 : 0.2);
       const noise = (Math.random() * 2 - 1) * 0.25;
-      data[i] = envelope * (0.45 * wobble + 0.35 * shriek + 0.2 * burst + noise);
+      data[i] =
+        envelope * (0.45 * wobble + 0.35 * shriek + 0.2 * burst + noise);
     }
     const source = ctx.createBufferSource();
     source.buffer = buffer;
@@ -379,7 +382,9 @@ export default function App() {
   return (
     <div className="page">
       <header>
-        <h1>🎃 Pumpkin Bingo Tracker</h1>
+        <h1>
+          <img src="wplace-pumpkin.svg" alt="Placekin" /> Pumpkin Bingo Tracker
+        </h1>
         <p className="sub">
           You can claim each number once. Pumpkins move every hour, on the hour.
         </p>
@@ -419,7 +424,10 @@ export default function App() {
         </div>
 
         <div className="alarm-wrapper">
-          <div className="chip countdown-chip" title="Countdown until pumpkins move again">
+          <div
+            className="chip countdown-chip"
+            title="Countdown until pumpkins move again"
+          >
             <span>
               ⏳ Next move in <strong>{mmss}</strong>
             </span>
@@ -437,7 +445,9 @@ export default function App() {
                 <span className="sr-only">Configure wave end timer</span>
               </button>
               {alarm.active && (
-                <span className="alarm-summary">notify at -{alarm.minutes} minutes</span>
+                <span className="alarm-summary">
+                  notify at -{alarm.minutes} minutes
+                </span>
               )}
             </div>
           </div>
@@ -451,13 +461,19 @@ export default function App() {
               <p className="alarm-title">
                 Set a wave end timer to get notified before pumpkins move.
               </p>
-              <div className="alarm-choices" role="group" aria-label="Minutes before the hour">
+              <div
+                className="alarm-choices"
+                role="group"
+                aria-label="Minutes before the hour"
+              >
                 {[5, 10, 15].map((minutes) => (
                   <button
                     key={minutes}
                     type="button"
                     className={`alarm-choice${
-                      alarm.minutes === minutes && alarm.active ? " selected" : ""
+                      alarm.minutes === minutes && alarm.active
+                        ? " selected"
+                        : ""
                     }`}
                     onClick={() => void handleSetAlarm(minutes)}
                   >
@@ -465,7 +481,11 @@ export default function App() {
                   </button>
                 ))}
               </div>
-              <div className="alarm-toggle-group" role="group" aria-label="Alarm indicators">
+              <div
+                className="alarm-toggle-group"
+                role="group"
+                aria-label="Alarm indicators"
+              >
                 <button
                   type="button"
                   className={`alarm-toggle${alarm.visual ? " active" : ""}`}
@@ -501,11 +521,16 @@ export default function App() {
               )}
               {notificationsAvailable && notificationStatus === "denied" && (
                 <p className="alarm-note">
-                  Notifications are blocked. Update your browser settings to allow alerts.
+                  Notifications are blocked. Update your browser settings to
+                  allow alerts.
                 </p>
               )}
               <div className="alarm-footer">
-                <button type="button" className="alarm-clear" onClick={handleClearAlarm}>
+                <button
+                  type="button"
+                  className="alarm-clear"
+                  onClick={handleClearAlarm}
+                >
                   <i className="fa-solid fa-ban" aria-hidden="true"></i>
                   Clear timer
                 </button>
@@ -554,7 +579,10 @@ export default function App() {
         active={showCelebration}
         onComplete={() => setShowCelebration(false)}
       />
-      <div className={`alarm-overlay${visualOverlayActive ? " show" : ""}`} aria-hidden="true"></div>
+      <div
+        className={`alarm-overlay${visualOverlayActive ? " show" : ""}`}
+        aria-hidden="true"
+      ></div>
     </div>
   );
 }
