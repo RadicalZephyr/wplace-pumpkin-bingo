@@ -227,6 +227,21 @@ export default function App() {
         // onAssign={handleAssign}
         // onClearLink={handleClearLink}
       />
+
+      <footer className="footer">
+        Made by{" "}
+        <a target="_blank" href="https://github.com/RadicalZephyr/">
+          @RadicalZephyr
+        </a>
+        <br />
+        Contribute on{" "}
+        <a
+          target="_blank"
+          href="https://github.com/RadicalZephyr/wplace-pumpkin-bingo"
+        >
+          <i className="fa-brands fa-github"></i> Github
+        </a>
+      </footer>
     </div>
   );
 }
