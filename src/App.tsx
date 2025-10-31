@@ -395,7 +395,7 @@ export default function App() {
     <div className="page">
       <header>
         <h1>
-          <img src="wplace-pumpkin.svg" alt="Placekin" /> Pumpkin Bingo Tracker
+          <img src="wplace-pumpkin.svg" alt="Placekin" /> Placekin Bingo Tracker
         </h1>
         <p className="sub">
           You can claim each number once. Pumpkins move every hour, on the hour.
