@@ -171,7 +171,8 @@ export default function App() {
         <p>
           Copy your{" "}
           <a target="_blank" href={CLAIMED_LINK}>
-            current list of claimed pumpkins ↗🔗
+            current list of claimed pumpkins
+            <i className="fas fa-external-link"></i>
           </a>{" "}
           directly into the "Import" dialog to start filling out your grid!
         </p>
