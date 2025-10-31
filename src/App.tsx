@@ -196,25 +196,7 @@ export default function App() {
           ⏳ Next move in <strong>{mmss}</strong>
         </div>
 
-        <label
-          className="chip"
-          title="At the top of the hour, wipe stored map links (never uncheck claims)"
-        >
-          <input
-            type="checkbox"
-            checked={autoClearLinksOnHour}
-            onChange={(e) => {
-              setAutoClearLinksOnHour(e.target.checked);
-              saveAutoClearLinks(e.target.checked);
-            }}
-          />{" "}
-          Auto‑clear links on hour
-        </label>
-
         <div className="btnrow">
-          <button className="btn" onClick={handleOpenNext}>
-            Open next unclaimed
-          </button>
           <button className="btn" onClick={handleExport}>
             Export
           </button>
@@ -223,27 +205,6 @@ export default function App() {
           </button>
           <button className="btn" onClick={handleClearAllChecks}>
             Clear All Checks
-          </button>
-          <button className="btn" onClick={handleClearAllLinks}>
-            Clear All Links
-          </button>
-        </div>
-
-        <div className="template-row">
-          <input
-            className="text"
-            placeholder="Map URL template (e.g. https://example.com/pumpkin/{num})"
-            value={mapTemplate}
-            onChange={(e) => setMapTemplate(e.target.value)}
-          />
-          <button
-            className="btn"
-            onClick={() => {
-              saveTemplate(mapTemplate);
-              toast("Template saved");
-            }}
-          >
-            Save
           </button>
         </div>
       </section>
