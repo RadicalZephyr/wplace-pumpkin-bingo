@@ -164,7 +164,7 @@ export default function App() {
   return (
     <div className="page">
       <header>
-        <h1>🎃 Pumpkin Tracker</h1>
+        <h1>🎃 Pumpkin Bingo Tracker</h1>
         <p className="sub">
           You can claim each number once. Pumpkins move every hour, on the hour.
         </p>
