@@ -113,7 +113,9 @@ export default function App() {
   };
 
   const handleImport = () => {
-    const text = prompt("Paste exported JSON:");
+    const text = prompt(
+      "Paste exported JSON, or contents of\nhttps://backend.wplace.live/event/hallowen/pumpkins/claimed",
+    );
     if (!text) return;
     const parsed = importAll(text);
     if (!parsed) return alert("Invalid JSON");
