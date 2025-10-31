@@ -218,12 +218,6 @@ export default function App() {
         onAssign={handleAssign}
         onClearLink={handleClearLink}
       />
-
-      <footer className="footer">
-        Shortcuts: (coming next pass) J/K for next/prev unclaimed • Small
-        screens hide link/edit to keep it clean. Stored in <em>localStorage</em>
-        .
-      </footer>
     </div>
   );
 }
