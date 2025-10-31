@@ -169,17 +169,6 @@ export default function App() {
       </header>
 
       <section className="controls" aria-label="Controls">
-        <div className="progress" title="Claimed / Total">
-          <div className="bar" aria-hidden="true">
-            <span
-              style={{ width: `${Math.round((claimedCount / 100) * 100)}%` }}
-            />
-          </div>
-          <div>
-            <strong>{claimedCount}</strong>/100
-          </div>
-        </div>
-
         <label className="chip">
           <input
             type="checkbox"
@@ -192,10 +181,6 @@ export default function App() {
           Show unclaimed only
         </label>
 
-        <div className="chip" title="Countdown until pumpkins move again">
-          ⏳ Next move in <strong>{mmss}</strong>
-        </div>
-
         <div className="btnrow">
           <button className="btn" onClick={handleExport}>
             Export
@@ -206,6 +191,20 @@ export default function App() {
           <button className="btn" onClick={handleClearAllChecks}>
             Clear All Checks
           </button>
+        </div>
+
+        <div className="chip" title="Countdown until pumpkins move again">
+          ⏳ Next move in <strong>{mmss}</strong>
+        </div>
+        <div className="progress" title="Claimed / Total">
+          <div className="bar" aria-hidden="true">
+            <span
+              style={{ width: `${Math.round((claimedCount / 100) * 100)}%` }}
+            />
+          </div>
+          <div>
+            <strong>{claimedCount}</strong>/100
+          </div>
         </div>
       </section>
 
