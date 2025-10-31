@@ -288,6 +288,18 @@ export default function App() {
     visualOverlayActive,
   ]);
 
+  useEffect(() => {
+    if (!visualOverlayActive) return;
+    const stopOverlay = () => {
+      setVisualOverlayActive(false);
+    };
+    const events: (keyof WindowEventMap)[] = ["pointerdown", "keydown"]; // capture taps/clicks/keys
+    events.forEach((event) => window.addEventListener(event, stopOverlay));
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, stopOverlay));
+    };
+  }, [visualOverlayActive]);
+
   // const nextUnclaimed = useMemo(() => {
   //   for (let i = 1; i <= 100; i++) if (!claimed.has(i)) return i;
   //   return null;
