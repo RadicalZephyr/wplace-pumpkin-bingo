@@ -13,20 +13,25 @@ export function useInterval(callback: () => void, delay: number) {
 export function useCountdownToTopOfHour() {
   const [mmss, setMmss] = useState("--:--");
   const [atTop, setAtTop] = useState(false);
+  const [msUntilNextHour, setMsUntilNextHour] = useState<number>(0);
 
   const tick = () => {
     const now = new Date();
     const nextHour = new Date(now);
     nextHour.setMinutes(60, 0, 0);
-    const ms = nextHour.getTime() - now.getTime();
+    const ms = Math.max(0, nextHour.getTime() - now.getTime());
     const m = Math.floor(ms / 60000);
     const s = Math.floor((ms % 60000) / 1000);
     setMmss(`${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`);
     setAtTop(m === 0 && s === 0);
+    setMsUntilNextHour(ms);
   };
 
   useInterval(tick, 250);
-  return { mmss, atTop };
+  useEffect(() => {
+    tick();
+  }, []);
+  return { mmss, atTop, msUntilNextHour };
 }
 
 export function useMedia(query: string) {

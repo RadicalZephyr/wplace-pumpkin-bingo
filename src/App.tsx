@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   exportAll,
   importAll,
@@ -29,6 +29,17 @@ function downloadJson(filename: string, payload: string) {
   URL.revokeObjectURL(url);
 }
 
+type AlarmOption = "visual" | "audible" | "alert";
+
+type AlarmState = {
+  active: boolean;
+  minutes: number;
+  visual: boolean;
+  audible: boolean;
+  alert: boolean;
+  triggered: boolean;
+};
+
 export default function App() {
   const CLAIMED_LINK =
     "https://backend.wplace.live/event/hallowen/pumpkins/claimed";
@@ -45,10 +56,29 @@ export default function App() {
   );
 
   const large = useMedia("(min-width: 1024px)"); // >=1024px => 10x10; otherwise rows of 5 & no link/edit
-  const { mmss, atTop } = useCountdownToTopOfHour();
+  const { mmss, atTop, msUntilNextHour } = useCountdownToTopOfHour();
   const claimedCount = claimed.size;
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebratedAll, setCelebratedAll] = useState(false);
+  const [alarm, setAlarm] = useState<AlarmState>({
+    active: false,
+    minutes: 5,
+    visual: true,
+    audible: true,
+    alert: true,
+    triggered: false,
+  });
+  const [showAlarmPopover, setShowAlarmPopover] = useState(false);
+  const [visualOverlayActive, setVisualOverlayActive] = useState(false);
+  const notificationsAvailable =
+    typeof window !== "undefined" && "Notification" in window;
+  const [notificationStatus, setNotificationStatus] =
+    useState<NotificationPermission>(() =>
+      notificationsAvailable ? Notification.permission : "denied",
+    );
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+  const alarmButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (claimedCount === 100 && !showCelebration && !celebratedAll) {
@@ -58,6 +88,33 @@ export default function App() {
       setCelebratedAll(false);
     }
   }, [claimedCount, celebratedAll, showCelebration]);
+
+  useEffect(() => {
+    if (!showAlarmPopover) return;
+    const handleClick = (event: MouseEvent) => {
+      if (
+        popoverRef.current?.contains(event.target as Node) ||
+        alarmButtonRef.current?.contains(event.target as Node)
+      ) {
+        return;
+      }
+      setShowAlarmPopover(false);
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showAlarmPopover]);
+
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+        audioContextRef.current
+          .close()
+          .catch(() => {
+            /* ignore */
+          });
+      }
+    };
+  }, []);
 
   // handle top-of-hour auto action (links only, never unclaim pumpkins)
   const [processed, setProcessed] = useState(false);
@@ -81,6 +138,152 @@ export default function App() {
       return next;
     });
   }, []);
+
+  const ensureAudioContext = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+    if (audioContextRef.current.state === "suspended") {
+      void audioContextRef.current.resume();
+    }
+  }, []);
+
+  const playCackle = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+    const ctx = audioContextRef.current;
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
+    const duration = 2.6;
+    const sampleRate = ctx.sampleRate;
+    const frameCount = Math.floor(sampleRate * duration);
+    const buffer = ctx.createBuffer(1, frameCount, sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < frameCount; i++) {
+      const t = i / sampleRate;
+      const envelope = Math.min(1, t * 3) * Math.exp(-2.2 * t);
+      const wobble = Math.sin(2 * Math.PI * 7 * t) + Math.sin(2 * Math.PI * 11 * t);
+      const shriek = Math.sin(
+        2 * Math.PI * (220 + 40 * Math.sin(2 * Math.PI * 4 * t)) * t,
+      );
+      const burst =
+        Math.sin(2 * Math.PI * 620 * ((t * 4) % 0.25)) *
+        (Math.floor((t * 8) % 2) === 0 ? 0.6 : 0.2);
+      const noise = (Math.random() * 2 - 1) * 0.25;
+      data[i] = envelope * (0.45 * wobble + 0.35 * shriek + 0.2 * burst + noise);
+    }
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start();
+  }, []);
+
+  const ensureNotificationPermission = useCallback(async () => {
+    if (!notificationsAvailable) return false;
+    if (Notification.permission === "granted") {
+      setNotificationStatus("granted");
+      return true;
+    }
+    const result = await Notification.requestPermission();
+    setNotificationStatus(result);
+    return result === "granted";
+  }, [notificationsAvailable]);
+
+  const sendNotification = useCallback(() => {
+    if (!notificationsAvailable) return;
+    if (notificationStatus !== "granted") return;
+    new Notification("It's time to check for Placekins!", {
+      icon: "/wplace-pumpkin.svg",
+    });
+  }, [notificationStatus, notificationsAvailable]);
+
+  const handleSetAlarm = useCallback(
+    async (minutes: number) => {
+      ensureAudioContext();
+      if (notificationsAvailable) {
+        const granted = await ensureNotificationPermission();
+        if (!granted) {
+          toast("Enable browser notifications to receive alerts");
+        }
+      }
+      setAlarm((prev) => ({
+        ...prev,
+        minutes,
+        active: true,
+        triggered: false,
+      }));
+      setVisualOverlayActive(false);
+      setShowAlarmPopover(false);
+      toast(
+        `Wave end timer set for ${minutes} minute${minutes === 1 ? "" : "s"} before the hour`,
+      );
+    },
+    [ensureAudioContext, ensureNotificationPermission, notificationsAvailable],
+  );
+
+  const handleToggleIndicator = useCallback((option: AlarmOption) => {
+    let shouldDisableOverlay = false;
+    setAlarm((prev) => {
+      const next = { ...prev, [option]: !prev[option] } as AlarmState;
+      if (option === "visual" && !next.visual) {
+        shouldDisableOverlay = true;
+      }
+      return next;
+    });
+    if (shouldDisableOverlay) {
+      setVisualOverlayActive(false);
+    }
+  }, []);
+
+  const handleClearAlarm = useCallback(() => {
+    setAlarm((prev) => ({ ...prev, active: false, triggered: false }));
+    setVisualOverlayActive(false);
+    setShowAlarmPopover(false);
+  }, []);
+
+  useEffect(() => {
+    const { active, minutes, triggered, visual, audible, alert } = alarm;
+    if (!active) {
+      if (visualOverlayActive) setVisualOverlayActive(false);
+      return;
+    }
+    const threshold = minutes * 60000;
+    if (msUntilNextHour <= threshold && !triggered) {
+      setAlarm((prev) => ({ ...prev, triggered: true }));
+      if (visual) {
+        setVisualOverlayActive(true);
+      }
+      if (audible) {
+        playCackle();
+      }
+      if (alert) {
+        if (!notificationsAvailable) {
+          toast("Desktop notifications are not supported in this browser");
+        } else if (notificationStatus === "denied") {
+          toast("Desktop notifications are blocked for this site");
+        } else {
+          sendNotification();
+        }
+      }
+    } else if (msUntilNextHour > threshold && triggered) {
+      setAlarm((prev) => ({ ...prev, triggered: false }));
+      if (visualOverlayActive) {
+        setVisualOverlayActive(false);
+      }
+    }
+  }, [
+    alarm,
+    msUntilNextHour,
+    notificationStatus,
+    notificationsAvailable,
+    playCackle,
+    sendNotification,
+    visualOverlayActive,
+  ]);
 
   // const nextUnclaimed = useMemo(() => {
   //   for (let i = 1; i <= 100; i++) if (!claimed.has(i)) return i;
@@ -215,8 +418,100 @@ export default function App() {
           </button>
         </div>
 
-        <div className="chip" title="Countdown until pumpkins move again">
-          ⏳ Next move in <strong>{mmss}</strong>
+        <div className="alarm-wrapper">
+          <div className="chip countdown-chip" title="Countdown until pumpkins move again">
+            <span>
+              ⏳ Next move in <strong>{mmss}</strong>
+            </span>
+            <div className="alarm-actions">
+              <button
+                type="button"
+                className={`icon-btn alarm-btn${alarm.active ? " alarm-active" : ""}`}
+                onClick={() => setShowAlarmPopover((prev) => !prev)}
+                aria-haspopup="dialog"
+                aria-expanded={showAlarmPopover}
+                title="Set a wave end timer"
+                ref={alarmButtonRef}
+              >
+                <i className="fa-solid fa-alarm-clock" aria-hidden="true"></i>
+                <span className="sr-only">Configure wave end timer</span>
+              </button>
+              {alarm.active && (
+                <span className="alarm-summary">notify at -{alarm.minutes} minutes</span>
+              )}
+            </div>
+          </div>
+          {showAlarmPopover && (
+            <div
+              className="alarm-popover"
+              role="dialog"
+              aria-label="Wave end timer options"
+              ref={popoverRef}
+            >
+              <p className="alarm-title">
+                Set a wave end timer to get notified before pumpkins move.
+              </p>
+              <div className="alarm-choices" role="group" aria-label="Minutes before the hour">
+                {[5, 10, 15].map((minutes) => (
+                  <button
+                    key={minutes}
+                    type="button"
+                    className={`alarm-choice${
+                      alarm.minutes === minutes && alarm.active ? " selected" : ""
+                    }`}
+                    onClick={() => void handleSetAlarm(minutes)}
+                  >
+                    {minutes} min
+                  </button>
+                ))}
+              </div>
+              <div className="alarm-toggle-group" role="group" aria-label="Alarm indicators">
+                <button
+                  type="button"
+                  className={`alarm-toggle${alarm.visual ? " active" : ""}`}
+                  onClick={() => handleToggleIndicator("visual")}
+                  aria-pressed={alarm.visual}
+                >
+                  <i className="fa-solid fa-eye" aria-hidden="true"></i>
+                  Visual indicator
+                </button>
+                <button
+                  type="button"
+                  className={`alarm-toggle${alarm.audible ? " active" : ""}`}
+                  onClick={() => handleToggleIndicator("audible")}
+                  aria-pressed={alarm.audible}
+                >
+                  <i className="fa-solid fa-volume-high" aria-hidden="true"></i>
+                  Audible indicator
+                </button>
+                <button
+                  type="button"
+                  className={`alarm-toggle${alarm.alert ? " active" : ""}`}
+                  onClick={() => handleToggleIndicator("alert")}
+                  aria-pressed={alarm.alert}
+                >
+                  <i className="fa-solid fa-bell" aria-hidden="true"></i>
+                  Alert
+                </button>
+              </div>
+              {!notificationsAvailable && (
+                <p className="alarm-note">
+                  Your browser does not support desktop notifications.
+                </p>
+              )}
+              {notificationsAvailable && notificationStatus === "denied" && (
+                <p className="alarm-note">
+                  Notifications are blocked. Update your browser settings to allow alerts.
+                </p>
+              )}
+              <div className="alarm-footer">
+                <button type="button" className="alarm-clear" onClick={handleClearAlarm}>
+                  <i className="fa-solid fa-ban" aria-hidden="true"></i>
+                  Clear timer
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         <div className="progress" title="Claimed / Total">
           <div className="bar" aria-hidden="true">
@@ -259,6 +554,7 @@ export default function App() {
         active={showCelebration}
         onComplete={() => setShowCelebration(false)}
       />
+      <div className={`alarm-overlay${visualOverlayActive ? " show" : ""}`} aria-hidden="true"></div>
     </div>
   );
 }
