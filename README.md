@@ -1,75 +1,66 @@
-# React + TypeScript + Vite
+# Pumpkin Bingo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React + TypeScript project bootstrapped with [Vite](https://vite.dev/) for building the Pumpkin Bingo application. This guide walks you through setting up the development environment, running the app, and understanding the project's structure.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [Node.js](https://nodejs.org/) 18 or later
+- [pnpm](https://pnpm.io/), [npm](https://www.npmjs.com/), or [yarn](https://yarnpkg.com/) package manager (examples below use `npm`)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Note: This will impact Vite dev & build performances.
+2. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+   This starts Vite's dev server with hot module replacement. Open the printed local URL in your browser to view the app.
 
-## Expanding the ESLint configuration
+3. **Build for production**
+   ```bash
+   npm run build
+   ```
+   The optimized output is generated in the `dist/` directory.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+4. **Preview the production build**
+   ```bash
+   npm run preview
+   ```
+   Useful for verifying the production bundle locally before deploying.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+├── public/          # Static assets copied to the root of the build
+├── src/             # Application source code
+│   ├── assets/      # Images, fonts, and other asset files
+│   ├── components/  # Reusable UI components
+│   ├── App.tsx      # Root component
+│   └── main.tsx     # Application bootstrap
+├── index.html       # HTML entry file used by Vite
+├── vite.config.ts   # Vite configuration
+└── tsconfig*.json   # TypeScript configuration files
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `npm run dev` – Start the development server.
+- `npm run build` – Create a production build.
+- `npm run preview` – Preview the production build locally.
+- `npm run lint` – Run ESLint checks.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Environment Variables
+
+Create a `.env` file at the project root to add custom environment variables. Prefix client-side variables with `VITE_` (for example, `VITE_API_URL`) so Vite can expose them to the frontend.
+
+## Additional Resources
+
+- [Vite Documentation](https://vite.dev/guide/)
+- [React Documentation](https://react.dev/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+
+Happy hacking!
